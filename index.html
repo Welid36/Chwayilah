@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ذكرياتنا ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<canvas id="particles-canvas"></canvas>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login-screen" class="screen">
+  <div class="login-outer">
+    <div class="glow-ring"></div>
+    <div class="login-card">
+      <span class="login-emblem">🌙</span>
+      <h1 class="login-title">ذكرياتنا</h1>
+      <p class="login-sub">هذا المكان محفوظ لأجمل لحظاتنا معاً</p>
+
+      <div class="field-wrap">
+        <span class="f-icon">👤</span>
+        <input type="text" id="u-inp" placeholder="اسم المستخدم" autocomplete="username" />
+      </div>
+      <div class="field-wrap">
+        <span class="f-icon">🔑</span>
+        <input type="password" id="p-inp" placeholder="كلمة السر" autocomplete="current-password" />
+        <button class="eye-btn" onclick="toggleVis('p-inp',this)">👁</button>
+      </div>
+
+      <button class="login-btn" onclick="doLogin()">✨ دخول إلى الذكريات</button>
+      <div class="login-error" id="login-err">❌ اسم المستخدم أو كلمة السر غير صحيحة</div>
+      <p class="login-hint">الدخول الافتراضي: Chan&amp;meima / 123456</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN ══════════ -->
+<div id="main-site" class="screen">
+
+  <nav class="navbar">
+    <div class="nav-logo"><span>🌸</span> ذكرياتنا</div>
+    <div class="nav-actions">
+      <button class="btn-ghost" onclick="openCP()">🔐 تغيير كلمة السر</button>
+      <button class="btn-exit" onclick="doLogout()">خروج ↩</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bgtext">Memories</div>
+    <div id="floaties"></div>
+    <div class="hero-badge">لكل لحظة قيمة لا تُنسى</div>
+    <h1 class="hero-title">ألبوم <em>ذكرياتنا</em><br>الخاص</h1>
+    <p class="hero-desc">مكان دافئ وأنيق لكل الصور والذكريات التي تجمعنا، لأن كل لحظة جميلة تستحق أن تُحفظ إلى الأبد 💛</p>
+
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-num" id="stat-photos">0</span>
+        <span class="stat-label">صورة</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat-mem">0</span>
+        <span class="stat-label">ذكرى</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">يوم من الحب</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="upload-container">
+    <div class="upload-zone" id="drop-zone"
+      onclick="document.getElementById('f-inp').click()"
+      ondragover="ev_over(event)" ondragleave="ev_leave()" ondrop="ev_drop(event)"
+      onmousemove="trackM(event)">
+      <input type="file" id="f-inp" accept="image/*,video/*" multiple onchange="handleFiles(this.files)">
+      <div class="upload-ring">📷🎬</div>
+      <p class="upload-title">أضف صوراً وفيديوهات لذكرياتك</p>
+      <p class="upload-sub">اسحب الصور أو الفيديوهات وأفلتها هنا، أو انقر للتصفح</p>
+      <button class="add-btn" onclick="event.stopPropagation();document.getElementById('f-inp').click()">✦ إضافة ذكرى جديدة</button>
+    </div>
+  </div>
+
+  <div class="caption-panel" id="cap-panel">
+    <div class="caption-inner">
+      <input type="text" id="cap-inp" placeholder="✍️ اكتب وصفاً لهذه الذكرى..." />
+      <button class="btn-save-cap" onclick="savePhotos_()">💾 حفظ</button>
+      <button class="btn-cancel-cap" onclick="cancelUp()">✕ إلغاء</button>
+    </div>
+  </div>
+
+  <section class="gallery-section">
+    <div class="section-header">
+      <div class="sec-line"></div>
+      <h2 class="section-title"><span class="sec-star">✦</span> معرض الذكريات <span class="sec-star">✦</span></h2>
+      <div class="sec-line flip"></div>
+    </div>
+    <div class="gallery-grid" id="gallery"></div>
+  </section>
+
+  <footer>صُنع بكثير من الحب والشوق ✦ ذكرياتنا لا تُنسى أبداً</footer>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">✕</button>
+  <button class="lb-nav" id="lb-prev" onclick="event.stopPropagation();navLB(-1)">›</button>
+  <button class="lb-nav" id="lb-next" onclick="event.stopPropagation();navLB(1)">‹</button>
+  <div class="lb-inner" onclick="event.stopPropagation()">
+    <img id="lb-img" src="" alt="">
+    <p class="lb-caption" id="lb-cap"></p>
+    <p class="lb-date" id="lb-date"></p>
+  </div>
+</div>
+
+<!-- CHANGE PASS MODAL -->
+<div class="modal-bg" id="cp-modal">
+  <div class="modal-card">
+    <span class="modal-icon">🔐</span>
+    <h2 class="modal-title">تغيير كلمة السر</h2>
+    <p class="modal-sub">أدخل كلمة سرك الحالية ثم اختر كلمة سر جديدة</p>
+    <div class="modal-field"><label>كلمة السر الحالية</label><input type="password" id="cp-old" placeholder="••••••••"/></div>
+    <div class="modal-field"><label>كلمة السر الجديدة</label><input type="password" id="cp-new" placeholder="••••••••"/></div>
+    <div class="modal-field"><label>تأكيد كلمة السر الجديدة</label><input type="password" id="cp-con" placeholder="••••••••"/></div>
+    <div class="modal-err" id="cp-err"></div>
+    <div class="modal-suc" id="cp-suc">✅ تم تغيير كلمة السر بنجاح!</div>
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveCP()">حفظ التغييرات</button>
+      <button class="modal-cancel" onclick="closeCP()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/main.js"></script>
+</body>
